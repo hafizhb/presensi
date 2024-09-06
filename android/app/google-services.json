@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "819606405773",
+    "firebase_url": "https://face-recognition-8ac2f-default-rtdb.firebaseio.com",
+    "project_id": "face-recognition-8ac2f",
+    "storage_bucket": "face-recognition-8ac2f.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:819606405773:android:1c7ae92c5993caa12358c4",
+        "android_client_info": {
+          "package_name": "com.amaryllis.presensi"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDYY9UXks6zSVAYXXgLbt4C36u2v_meJek"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

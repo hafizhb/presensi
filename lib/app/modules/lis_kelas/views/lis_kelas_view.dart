@@ -1,0 +1,120 @@
+import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:presensi/app/routes/app_pages.dart';
+
+import '../../../style/app_color.dart';
+import '../controllers/lis_kelas_controller.dart';
+
+class LisKelasView extends StatelessWidget {
+  final LisKelasController controller = Get.put(LisKelasController());
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(
+          'Lis Kelas',
+          style: GoogleFonts.patrickHand(
+              color: AppColor.blackprimary,
+              fontSize: 22
+          ),
+        ),
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back, color: Colors.black),
+          onPressed: () => Get.back(),
+        ),
+        elevation: 0,
+        centerTitle: true,
+        bottom: PreferredSize(
+          preferredSize: Size.fromHeight(1),
+          child: Container(
+            width: MediaQuery.of(context).size.width,
+          ),
+        ),
+      ),
+      body: Obx(() {
+        if (controller.isLoading.value) {
+          return Center(child: CircularProgressIndicator());
+        }
+
+        if (controller.kelasList.isEmpty) {
+          return Center(child: Text('Anda belum terdaftar di kelas mana pun.'));
+        }
+
+        return ListView.builder(
+          itemCount: controller.kelasList.length,
+          itemBuilder: (context, index) {
+            var kelas = controller.kelasList[index];
+            return LisKelasTile(
+              title: kelas['s_nama'],
+              onTap: () {
+                Get.toNamed(
+                  Routes.DETAIL_KELAS,
+                  arguments: {'kelasId': kelas['k_id']},
+                );
+              },
+            );
+          },
+        );
+      }),
+    );
+  }
+
+
+}
+
+
+class LisKelasTile extends StatelessWidget {
+  final String title;
+  final void Function() onTap;
+
+  LisKelasTile({
+    required this.title,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: onTap,
+      child: Container(
+        padding: EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+        decoration: BoxDecoration(
+          border: Border(
+            top: BorderSide(
+              color: AppColor.primary,
+              width: 1,
+            ),
+          ),
+        ),
+        child: Row(
+          children: [
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: GoogleFonts.poppins(
+                      fontWeight: FontWeight.w500,
+                      color: AppColor.blacksecondary,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Container(
+              margin: EdgeInsets.only(left: 24),
+              child: Icon(
+                Icons.arrow_forward,
+                color: AppColor.blacksecondary,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
