@@ -73,19 +73,4 @@ class UbahprofileController extends GetxController {
     image = await picker.pickImage(source: ImageSource.gallery);
     update();
   }
-
-  void deleteProfile() async {
-    String uid = auth.currentUser!.uid;
-    try {
-      await firestore.collection("Mahasiswa").doc(uid).update({
-        "avatar": FieldValue.delete(),
-      });
-      Get.back();
-      Get.snackbar("Success", "Profile picture deleted successfully");
-    } catch (e) {
-      Get.snackbar("Error", "Cannot delete profile picture: ${e.toString()}");
-    } finally {
-      update();
-    }
-  }
 }

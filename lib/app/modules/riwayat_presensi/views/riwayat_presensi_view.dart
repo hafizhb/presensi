@@ -37,10 +37,9 @@ class RiwayatPresensiView extends StatelessWidget {
             RiwayatPresensi riwayat = controller.riwayatPresensiList[index];
 
             return RiwayatTile(
-                kelas: 'Kelas: ${riwayat.kId}',
                 matkul: 'Mata Kuliah: ${riwayat.sNama}',
-                kehadiran: 'Kehadiran: ${riwayat.kehadiran}',
-                waktu: 'Waktu: ${riwayat.waktu}');
+                kehadiran: 'Status: ${riwayat.kehadiran}',
+                waktu: 'Hadir pada: ${riwayat.waktu}');
           },
         );
       }),
@@ -59,13 +58,11 @@ class RiwayatPresensiView extends StatelessWidget {
 }
 
 class RiwayatTile extends StatelessWidget {
-  final String kelas;
   final String matkul;
   final String kehadiran;
   final String waktu;
 
   RiwayatTile({
-    required this.kelas,
     required this.matkul,
     required this.kehadiran,
     required this.waktu,
@@ -91,19 +88,13 @@ class RiwayatTile extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    kelas,
+                    matkul,
                     style: GoogleFonts.poppins(
                       fontWeight: FontWeight.w500,
                       color: AppColor.blacksecondary,
                     ),
                   ),
-                  Text(
-                    matkul,
-                    style: GoogleFonts.poppins(
-                      fontWeight: FontWeight.w300,
-                      color: AppColor.blacksecondary,
-                    ),
-                  ),
+                  SizedBox(height: 10),
                   Text(
                     kehadiran,
                     style: GoogleFonts.poppins(

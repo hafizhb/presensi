@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:presensi/app/style/app_color.dart';
+import '../../../widgets/custom_toast.dart';
 import '../../../widgets/lisv2_tile.dart';
 import '../controllers/tambah_kelas_controller.dart';
 
@@ -47,13 +48,13 @@ class TambahKelasView extends StatelessWidget {
             var kelas = controller.kelasList[index];
 
             return Lisv2Tile(
-              title: kelas['s_nama'], // Menggunakan s_nama dari koleksi Matkul
+              title: kelas['s_nama'],
               icon: Icon(Icons.book, color: Colors.white),
               trailing: IconButton(
                 icon: Icon(Icons.add, color: AppColor.primary),
                 onPressed: () async {
                   await controller.addClass(kelas['k_id']);
-                  Get.snackbar('Berhasil', 'Kelas berhasil ditambahkan');
+                  CustomToast.successToast('Berhasil', 'Kelas berhasil ditambahkan');
                 },
               ),
             );

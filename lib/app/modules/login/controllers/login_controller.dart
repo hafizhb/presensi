@@ -5,6 +5,8 @@ import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:presensi/app/routes/app_pages.dart';
 
+import '../../../widgets/custom_toast.dart';
+
 class LoginController extends GetxController {
   RxBool isLoading = false.obs;
   RxBool obsecureText = true.obs;
@@ -34,7 +36,7 @@ class LoginController extends GetxController {
             .get()
             .then((querySnapshot) => querySnapshot.docs.isNotEmpty ? querySnapshot.docs.first : null);
 
-        // Jika tidak ditemukan di 'Mahasiswa', cek di collection lain (misalnya 'Dosen')
+        // Jika tidak ditemukan di 'Mahasiswa', cek di collection 'Admin'
         if (userDoc == null) {
           userDoc = await FirebaseFirestore.instance
               .collection('Admin')
@@ -69,17 +71,18 @@ class LoginController extends GetxController {
       } on FirebaseAuthException catch (e) {
         isLoading.value = false;
         if (e.code == 'user-not-found') {
-          Get.snackbar("Terjadi Kesalahan", "User tidak diketahui untuk email tersebut.");
+          CustomToast.errorToast("Terjadi Kesalahan", "User tidak ditemukan untuk email tersebut.");
         } else if (e.code == 'wrong-password') {
-          Get.snackbar("Terjadi Kesalahan", "Password salah.");
+          CustomToast.errorToast("Terjadi Kesalahan", "Password salah. Silakan coba lagi.");
+        } else {
+          CustomToast.errorToast("Terjadi Kesalahan", "Password salah. Silakan coba lagi.");
         }
       } catch (e) {
         isLoading.value = false;
-        Get.snackbar("Terjadi Kesalahan", "Tidak dapat login.");
+        CustomToast.errorToast("Terjadi Kesalahan", "Tidak dapat login. Kesalahan: $e");
       }
     } else {
-      Get.snackbar("Terjadi Kesalahan", "Email dan password wajib diisi.");
+      CustomToast.errorToast("Terjadi Kesalahan", "Email dan password wajib diisi.");
     }
   }
-
 }

@@ -53,6 +53,8 @@ class NotifikasiPresensi extends GetxController {
 
       for (var kelasDoc in kelasSnapshot.docs) {
         String kelasId = kelasDoc.id;
+        String kMatkul = kelasDoc['k_matkul'];
+        String sNama = await getNamaMatkul(kMatkul);
 
         QuerySnapshot sesiSnapshot = await firestore
             .collection('Kelas')
@@ -77,12 +79,12 @@ class NotifikasiPresensi extends GetxController {
 
               if (kehadiran != null && kehadiran.isNotEmpty) {
                 String notificationKey =
-                    '${kelasId}_${sesiId}_${userNim}_${kehadiran}';
+                    '${kelasId}_${sesiId}_${userNim}_${kehadiran}_${kMatkul}';
                 print(
                     'Received kehadiran update: $kehadiran for key: $notificationKey');
 
                 if (!isNotificationSent(notificationKey)) {
-                  _showNotification(kelasId, sesiId, kehadiran);
+                  _showNotification(kelasId, sesiId, kehadiran, kMatkul);
                   markNotificationAsSent(notificationKey);
                 }
               }
@@ -110,8 +112,18 @@ class NotifikasiPresensi extends GetxController {
     return '';
   }
 
+  Future<String> getNamaMatkul(String kMatkul) async {
+    var matkulSnapshot = await firestore
+        .collection('Matkul')
+        .doc(kMatkul).get();
+    if (matkulSnapshot.exists) {
+      return matkulSnapshot.data()?['s_nama'] ?? 'Nama Tidak Ditemukan';
+    }
+    return 'Nama Tidak Ditemukan';
+  }
+
   Future<void> _showNotification(
-      String kelasId, String sesiId, String kehadiran) async {
+      String kelasId, String sesiId, String kehadiran, String kMatkul) async {
     const AndroidNotificationDetails androidPlatformChannelSpecifics =
     AndroidNotificationDetails(
       'kehadiran_channel_id',
@@ -127,13 +139,13 @@ class NotifikasiPresensi extends GetxController {
     await flutterLocalNotificationsPlugin.show(
       0,
       'Status Kehadiran Diperbarui',
-      'Status kehadiran Anda: $kehadiran di kelas $kelasId sesi $sesiId',
+      'Status kehadiran: $kehadiran pada mata kuliah $kMatkul di $sesiId',
       platformChannelSpecifics,
       payload: 'Kehadiran Updated',
     );
 
     print(
-        'Notifikasi dikirim untuk kelas $kelasId sesi $sesiId dengan status $kehadiran');
+        'Notifikasi dikirim untuk kelas $kMatkul sesi $sesiId dengan status $kehadiran');
   }
 
   void markNotificationAsSent(String key) {

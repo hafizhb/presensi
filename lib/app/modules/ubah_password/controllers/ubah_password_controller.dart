@@ -2,6 +2,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '../../../widgets/custom_toast.dart';
+
 class UbahPasswordController extends GetxController {
   RxBool isLoading = false.obs;
   TextEditingController currC = TextEditingController();
@@ -27,23 +29,23 @@ class UbahPasswordController extends GetxController {
 
           Get.back();
 
-          Get.snackbar("Berhasil", "Berhasil ubah password");
+          CustomToast.successToast("Berhasil", "Berhasil ubah password");
         } on FirebaseAuthException catch (e) {
           if (e.code == "wrong-password") {
-            Get.snackbar("Terjadi Kesalahan", "Password yang dimasukan salah. Tidak dapat update password.");
+            CustomToast.errorToast("Terjadi Kesalahan", "Password yang dimasukan salah. Tidak dapat update password.");
           } else {
-            Get.snackbar("Terjadi Kesalahan", "${e.code.toLowerCase()}");
+            CustomToast.errorToast("Terjadi Kesalahan", "${e.code.toLowerCase()}");
           }
         } catch (e) {
-          Get.snackbar("Terjadi Kesalahan", "Tidak dapat update password");
+          CustomToast.errorToast("Terjadi Kesalahan", "Tidak dapat update password");
         } finally {
           isLoading.value = false;
         }
       } else {
-        Get.snackbar("Terjadi Kesalahan", "Confirm password tidak cocok.");
+        CustomToast.errorToast("Terjadi Kesalahan", "Confirm password tidak cocok.");
       }
     } else {
-      Get.snackbar("Terjadi Kesalahan", "Semua input harus diisi");
+      CustomToast.errorToast("Terjadi Kesalahan", "Semua input harus diisi");
     }
   }
 }

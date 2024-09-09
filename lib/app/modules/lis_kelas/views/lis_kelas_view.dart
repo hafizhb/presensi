@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:presensi/app/routes/app_pages.dart';
 
 import '../../../style/app_color.dart';
+import '../../../widgets/lisv3_tile.dart';
 import '../controllers/lis_kelas_controller.dart';
 
 class LisKelasView extends StatelessWidget {
@@ -46,8 +47,9 @@ class LisKelasView extends StatelessWidget {
           itemCount: controller.kelasList.length,
           itemBuilder: (context, index) {
             var kelas = controller.kelasList[index];
-            return LisKelasTile(
+            return Lisv3Tile(
               title: kelas['s_nama'],
+              icon: Icon(Icons.bookmark, color: Colors.white),
               onTap: () {
                 Get.toNamed(
                   Routes.DETAIL_KELAS,
@@ -58,62 +60,6 @@ class LisKelasView extends StatelessWidget {
           },
         );
       }),
-    );
-  }
-
-
-}
-
-
-class LisKelasTile extends StatelessWidget {
-  final String title;
-  final void Function() onTap;
-
-  LisKelasTile({
-    required this.title,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return InkWell(
-      onTap: onTap,
-      child: Container(
-        padding: EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-        decoration: BoxDecoration(
-          border: Border(
-            top: BorderSide(
-              color: AppColor.primary,
-              width: 1,
-            ),
-          ),
-        ),
-        child: Row(
-          children: [
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    title,
-                    style: GoogleFonts.poppins(
-                      fontWeight: FontWeight.w500,
-                      color: AppColor.blacksecondary,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            Container(
-              margin: EdgeInsets.only(left: 24),
-              child: Icon(
-                Icons.arrow_forward,
-                color: AppColor.blacksecondary,
-              ),
-            ),
-          ],
-        ),
-      ),
     );
   }
 }

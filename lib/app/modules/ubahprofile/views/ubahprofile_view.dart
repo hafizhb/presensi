@@ -21,7 +21,7 @@ class UbahprofileView extends GetView<UbahprofileController> {
           'Ubah Profile',
           style: GoogleFonts.patrickHand(
             color: AppColor.blackprimary,
-            fontSize: 14,
+            fontSize: 22,
           ),
         ),
         leading: IconButton(

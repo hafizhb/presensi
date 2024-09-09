@@ -85,20 +85,4 @@ class UbahprofileAdminController extends GetxController {
 
     update();
   }
-
-  void deleteProfile() async {
-    String uid = auth.currentUser!.uid;
-    try {
-      await firestore.collection("Admin").doc(uid).update({
-        "avatar": FieldValue.delete(),
-      });
-      Get.back();
-
-      Get.snackbar("Berhasil", "Berhasil delete avatar profile");
-    } catch (e) {
-      Get.snackbar("Terjadi Kesalahan", "Tidak dapat delete avatar profile. Karena ${e.toString()}");
-    } finally {
-      update();
-    }
-  }
 }

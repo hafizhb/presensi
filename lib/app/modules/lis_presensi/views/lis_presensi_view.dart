@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:presensi/app/routes/app_pages.dart';
 import '../../../style/app_color.dart';
+import '../../../widgets/lisv3_tile.dart';
 import '../controllers/lis_presensi_controller.dart';
 
 class LisPresensiView extends StatelessWidget {
@@ -45,8 +46,9 @@ class LisPresensiView extends StatelessWidget {
           itemCount: controller.kelasList.length,
           itemBuilder: (context, index) {
             var kelas = controller.kelasList[index];
-            return LisPresensiTile(
-              title: kelas['s_nama'], // Menggunakan s_nama dari koleksi Matkul
+            return Lisv3Tile(
+              title: kelas['s_nama'],
+              icon: Icon(Icons.bookmark_added, color: Colors.white),
               onTap: () {
                 // Navigasi ke halaman Detail Presensi dengan kelasId sebagai argumen
                 Get.toNamed(
@@ -58,59 +60,6 @@ class LisPresensiView extends StatelessWidget {
           },
         );
       }),
-    );
-  }
-}
-
-class LisPresensiTile extends StatelessWidget {
-  final String title;
-  final void Function() onTap;
-
-  LisPresensiTile({
-    required this.title,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return InkWell(
-      onTap: onTap,
-      child: Container(
-        padding: EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-        decoration: BoxDecoration(
-          border: Border(
-            top: BorderSide(
-              color: AppColor.primary,
-              width: 1,
-            ),
-          ),
-        ),
-        child: Row(
-          children: [
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    title,
-                    style: GoogleFonts.poppins(
-                      fontWeight: FontWeight.w500,
-                      color: AppColor.blacksecondary,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            Container(
-              margin: EdgeInsets.only(left: 24),
-              child: Icon(
-                Icons.arrow_forward,
-                color: AppColor.blacksecondary,
-              ),
-            ),
-          ],
-        ),
-      ),
     );
   }
 }

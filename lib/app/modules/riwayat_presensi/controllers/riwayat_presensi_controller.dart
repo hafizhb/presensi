@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:get/get.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:intl/intl.dart';
 
 class RiwayatPresensiController extends GetxController {
   FirebaseFirestore firestore = FirebaseFirestore.instance;
@@ -27,7 +28,7 @@ class RiwayatPresensiController extends GetxController {
       QuerySnapshot kelasSnapshot = await firestore.collection('Kelas').get();
 
       for (var kelasDoc in kelasSnapshot.docs) {
-        String kId = kelasDoc.id;
+        String kelasId = kelasDoc.id;
         String kMatkul = kelasDoc['k_matkul'];
         String sNama = await getNamaMatkul(kMatkul);
 
@@ -50,22 +51,33 @@ class RiwayatPresensiController extends GetxController {
           // Periksa apakah dokumen presensi ada dan apakah data valid
           if (presensiDoc.exists) {
             var data = presensiDoc.data() as Map<String, dynamic>;
-            if (data['kehadiran'] != null && data['waktu'] != null && data['kehadiran'] != '') {
+            if (data['kehadiran'] != null && data['kehadiran'] != '') {
 
-              Timestamp timestamp = data['waktu'];
-              DateTime waktuDateTime = timestamp.toDate();
-              String formattedWaktu = waktuDateTime.toLocal().toString();
+              String waktuFormatted;
+              DateTime waktuDateTime;
+
+              if (data['waktu'] != null) {
+                Timestamp timestamp = data['waktu'];
+                waktuDateTime = timestamp.toDate();
+                waktuFormatted = DateFormat('yyyy-MM-dd HH:mm').format(waktuDateTime);
+              } else {
+                waktuDateTime = DateTime(1970, 1, 1);  // Default value
+                waktuFormatted = "-";  // Handle null waktu
+              }
 
               list.add(RiwayatPresensi(
-                kId: kId,
+                kelasId: kelasId,
                 sNama: sNama,
                 kehadiran: data['kehadiran'],
-                waktu: formattedWaktu,
+                waktu: waktuFormatted,
+                waktuDateTime: waktuDateTime,
               ));
             }
           }
         }
       }
+
+      list.sort((a, b) => b.waktuDateTime.compareTo(a.waktuDateTime));
 
       riwayatPresensiList.value = list;
     } catch (e) {
@@ -101,24 +113,27 @@ class RiwayatPresensiController extends GetxController {
 }
 
 class RiwayatPresensi {
-  final String kId;
+  final String kelasId;
   final String sNama;
   final String kehadiran;
   final String waktu;
+  final DateTime waktuDateTime;
 
   RiwayatPresensi({
-    required this.kId,
+    required this.kelasId,
     required this.sNama,
     required this.kehadiran,
     required this.waktu,
+    required this.waktuDateTime,
   });
 
   factory RiwayatPresensi.fromFirestore(Map<String, dynamic> data) {
     return RiwayatPresensi(
-      kId: data['kId'] ?? '',
+      kelasId: data['kId'] ?? '',
       sNama: data['sNama'] ?? '',
       kehadiran: data['kehadiran'] ?? '',
       waktu: data['waktu'] ?? '',
+      waktuDateTime: data['waktuDateTime'] ?? DateTime.now(),
     );
   }
 }

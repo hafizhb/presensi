@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../style/app_color.dart';
+import '../../../widgets/custom_toast.dart';
 import '../controllers/detail_kelas_controller.dart';
 
 class DetailKelasView extends StatelessWidget {
@@ -56,7 +57,7 @@ class DetailKelasView extends StatelessWidget {
               bool confirm = await _showConfirmationDialog(context);
               if (confirm) {
                 await controller.removeClass(controller.kelasDetail['k_id']);
-                Get.snackbar('Berhasil', 'Kelas berhasil dihapus');
+                CustomToast.successToast('Berhasil', 'Kelas berhasil dihapus');
               }
             },
           ),

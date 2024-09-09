@@ -80,7 +80,7 @@ class CustomToast {
           ),
         ],
       ),
-      backgroundColor: AppColor.secondary,
+      backgroundColor: AppColor.blacksecondary,
       padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
       margin: EdgeInsets.symmetric(horizontal: 16),
       borderRadius: 8,
