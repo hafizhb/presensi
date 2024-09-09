@@ -39,7 +39,7 @@ class TambahKelasView extends StatelessWidget {
         }
 
         if (controller.kelasList.isEmpty) {
-          return Center(child: Text('Tidak ada kelas yang tersedia.'));
+          return Center(child: Text('Tidak ada kelas yang tersedia...'));
         }
 
         return ListView.builder(

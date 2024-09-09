@@ -2,91 +2,40 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:get/get.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import '../../../controllers/notifikasi_presensi.dart';
 
 class RiwayatPresensiController extends GetxController {
   FirebaseFirestore firestore = FirebaseFirestore.instance;
+  FirebaseAuth auth = FirebaseAuth.instance;
 
-  // List untuk menyimpan data riwayat presensi
-  var riwayatPresensiList = <RiwayatPresensi>[].obs;
-  var isLoading = false.obs;
+  RxList<RiwayatPresensi> riwayatPresensiList = <RiwayatPresensi>[].obs;
+  RxBool isLoading = true.obs; // Observable loading state
+  List<String> displayedNotifications = [];
+  String currentUserNim = '';
+
+  final NotifikasiPresensi notifikasiPresensi = NotifikasiPresensi();
 
   @override
   void onInit() {
     super.onInit();
-    fetchRiwayatPresensi();
+    monitorPresensiChanges();
   }
 
-  Future<void> fetchRiwayatPresensi() async {
-    isLoading.value = true;
-    try {
-      // Dapatkan userNim dari state atau GetStorage
-      String userNim = await getCurrentUserNim();
-
-      // Mengambil data presensi dari Firestore
-      List<RiwayatPresensi> list = [];
-
-      QuerySnapshot kelasSnapshot = await firestore.collection('Kelas').get();
-
-      for (var kelasDoc in kelasSnapshot.docs) {
-        String kelasId = kelasDoc.id;
-        String kMatkul = kelasDoc['k_matkul'];
-        String sNama = await getNamaMatkul(kMatkul);
-
-        QuerySnapshot sesiSnapshot = await firestore
-            .collection('Kelas')
-            .doc(kelasDoc.id)
-            .collection('Sesi')
-            .get();
-
-        for (var sesiDoc in sesiSnapshot.docs) {
-          DocumentSnapshot presensiDoc = await firestore
-              .collection('Kelas')
-              .doc(kelasDoc.id)
-              .collection('Sesi')
-              .doc(sesiDoc.id)
-              .collection('Mahasiswa_Peserta')
-              .doc(userNim)
-              .get();
-
-          // Periksa apakah dokumen presensi ada dan apakah data valid
-          if (presensiDoc.exists) {
-            var data = presensiDoc.data() as Map<String, dynamic>;
-            if (data['kehadiran'] != null && data['kehadiran'] != '') {
-
-              String waktuFormatted;
-              DateTime waktuDateTime;
-
-              if (data['waktu'] != null) {
-                Timestamp timestamp = data['waktu'];
-                waktuDateTime = timestamp.toDate();
-                waktuFormatted = DateFormat('yyyy-MM-dd HH:mm').format(waktuDateTime);
-              } else {
-                waktuDateTime = DateTime(1970, 1, 1);  // Default value
-                waktuFormatted = "-";  // Handle null waktu
-              }
-
-              list.add(RiwayatPresensi(
-                kelasId: kelasId,
-                sNama: sNama,
-                kehadiran: data['kehadiran'],
-                waktu: waktuFormatted,
-                waktuDateTime: waktuDateTime,
-              ));
-            }
-          }
-        }
-      }
-
-      list.sort((a, b) => b.waktuDateTime.compareTo(a.waktuDateTime));
-
-      riwayatPresensiList.value = list;
-    } catch (e) {
-      print("Error fetching presensi data: $e");
-    } finally {
-      isLoading.value = false;
-    }
+  Future<void> loadCurrentUserNim() async {
+    currentUserNim = await getCurrentUserNim();
+    loadDisplayedNotifications(currentUserNim);
   }
 
+  void loadDisplayedNotifications(String nim) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    displayedNotifications = prefs.getStringList('displayedNotifications_$nim') ?? [];
+  }
+
+  void saveDisplayedNotifications(String nim) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.setStringList('displayedNotifications_$nim', displayedNotifications);
+  }
 
   Future<String> getCurrentUserNim() async {
     String uid = FirebaseAuth.instance.currentUser!.uid;
@@ -100,7 +49,7 @@ class RiwayatPresensiController extends GetxController {
     return '';
   }
 
-  // Fungsi untuk mendapatkan nama mata kuliah dari koleksi Matkul
+
   Future<String> getNamaMatkul(String kMatkul) async {
     var matkulSnapshot = await firestore
         .collection('Matkul')
@@ -110,8 +59,68 @@ class RiwayatPresensiController extends GetxController {
     }
     return 'Nama Tidak Ditemukan';
   }
+
+  void monitorPresensiChanges() async {
+    await loadCurrentUserNim();
+
+    firestore.collection('Kelas').snapshots().listen((kelasSnapshot) {
+      for (var kelasDoc in kelasSnapshot.docs) {
+        firestore.collection('Kelas')
+            .doc(kelasDoc.id)
+            .collection('Sesi')
+            .snapshots()
+            .listen((sesiSnapshot) {
+          for (var sesiDoc in sesiSnapshot.docs) {
+            firestore.collection('Kelas')
+                .doc(kelasDoc.id)
+                .collection('Sesi')
+                .doc(sesiDoc.id)
+                .collection('Mahasiswa_Peserta')
+                .doc(currentUserNim)
+                .snapshots()
+                .listen((presensiDoc) async {
+              if (presensiDoc.exists) {
+                var data = presensiDoc.data() as Map<String, dynamic>;
+                if (data['kehadiran'] != null && data['kehadiran'] != '') {
+                  String sNama = await getNamaMatkul(kelasDoc['k_matkul']);
+                  DateTime waktuDateTime = (data['waktu'] as Timestamp).toDate();
+                  String waktuFormatted = DateFormat('yyyy-MM-dd HH:mm').format(waktuDateTime);
+
+                  RiwayatPresensi newPresensi = RiwayatPresensi(
+                    kelasId: kelasDoc.id,
+                    sNama: sNama,
+                    kehadiran: data['kehadiran'],
+                    waktu: waktuFormatted,
+                    waktuDateTime: waktuDateTime,
+                  );
+
+                  riwayatPresensiList.add(newPresensi);
+
+                  // Urutkan riwayatPresensiList berdasarkan waktuDateTime secara descending
+                  riwayatPresensiList.sort((a, b) => b.waktuDateTime.compareTo(a.waktuDateTime));
+
+                  String notifikasiId = '${kelasDoc.id}_${sesiDoc.id}';
+                  if (!displayedNotifications.contains(notifikasiId)) {
+                    notifikasiPresensi.showNotification(
+                      "Presensi Baru",
+                      "$sNama: ${data['kehadiran']} pada $waktuFormatted",
+                    );
+                    displayedNotifications.add(notifikasiId);
+                    saveDisplayedNotifications(currentUserNim);
+                  }
+                }
+              }
+            });
+          }
+        });
+      }
+      isLoading.value = false; // Stop loading after data is fetched
+    });
+  }
+
 }
 
+// Riwayat Presensi model
 class RiwayatPresensi {
   final String kelasId;
   final String sNama;

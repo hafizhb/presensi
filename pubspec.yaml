@@ -24,6 +24,7 @@ dependencies:
   device_info_plus: ^10.1.2
   flutter_local_notifications: ^17.2.2
   basic_utils: ^5.7.0
+  shared_preferences: ^2.3.2
 
 dev_dependencies: 
   flutter_lints: ^4.0.0

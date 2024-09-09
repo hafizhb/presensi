@@ -39,7 +39,7 @@ class LisPresensiView extends StatelessWidget {
         }
 
         if (controller.kelasList.isEmpty) {
-          return Center(child: Text('Anda belum terdaftar di kelas mana pun.'));
+          return Center(child: Text('Tambahkan kelas terlebih dahulu!'));
         }
 
         return ListView.builder(
