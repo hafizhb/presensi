@@ -10,7 +10,7 @@ class RiwayatPresensiController extends GetxController {
   FirebaseAuth auth = FirebaseAuth.instance;
 
   RxList<RiwayatPresensi> riwayatPresensiList = <RiwayatPresensi>[].obs;
-  RxBool isLoading = true.obs; // Observable loading state
+  RxBool isLoading = true.obs;
   List<String> displayedNotifications = [];
   String currentUserNim = '';
 
@@ -96,7 +96,7 @@ class RiwayatPresensiController extends GetxController {
 
                   riwayatPresensiList.add(newPresensi);
 
-                  // Urutkan riwayatPresensiList berdasarkan waktuDateTime secara descending
+                  // Mengurutkan berdasarkan waktuDateTime
                   riwayatPresensiList.sort((a, b) => b.waktuDateTime.compareTo(a.waktuDateTime));
 
                   String notifikasiId = '${kelasDoc.id}_${sesiDoc.id}';
@@ -114,7 +114,7 @@ class RiwayatPresensiController extends GetxController {
           }
         });
       }
-      isLoading.value = false; // Stop loading after data is fetched
+      isLoading.value = false;
     });
   }
 

@@ -9,23 +9,20 @@ class NotifikasiPresensi {
   FlutterLocalNotificationsPlugin();
 
   static AndroidNotificationChannel channel = const AndroidNotificationChannel(
-    'Channel_id', // id channel
-    'Channel_title', // nama channel
+    'Channel_id',
+    'Channel_title',
     description: 'This channel is used for important notifications.',
     importance: Importance.high,
     playSound: true,
   );
 
   static Future<void> initializeNotification() async {
-    // Android Initialization
     const AndroidInitializationSettings initializationSettingsAndroid =
     AndroidInitializationSettings('@mipmap/ic_launcher');
 
-    // iOS Initialization
     final DarwinInitializationSettings initializationSettingsIOS =
     DarwinInitializationSettings(
       onDidReceiveLocalNotification: (id, title, body, payload) async {
-        // Handle notification received on iOS
         return await showDialog(
           context: Get.context!,
           builder: (BuildContext context) => CupertinoAlertDialog(
@@ -45,13 +42,11 @@ class NotifikasiPresensi {
       },
     );
 
-    // Initialization settings for both Android and iOS
     final InitializationSettings initializationSettings = InitializationSettings(
       android: initializationSettingsAndroid,
       iOS: initializationSettingsIOS,
     );
 
-    // Initialize FlutterLocalNotificationsPlugin
     await flutterLocalNotificationsPlugin.initialize(
       initializationSettings,
       onDidReceiveNotificationResponse: (details) async {
@@ -67,17 +62,14 @@ class NotifikasiPresensi {
       },
     );
 
-    // Create the notification channel
     await flutterLocalNotificationsPlugin
         .resolvePlatformSpecificImplementation<
         AndroidFlutterLocalNotificationsPlugin>()
         ?.createNotificationChannel(channel);
 
-    // Request notification permissions using permission_handler
     await requestNotificationPermission();
   }
 
-  // Function to request notification permission using permission_handler
   static Future<void> requestNotificationPermission() async {
     var status = await Permission.notification.status;
     if (!status.isGranted) {
@@ -85,7 +77,6 @@ class NotifikasiPresensi {
     }
   }
 
-  // Function to show notification
   Future<void> showNotification(String title, String body) async {
     await flutterLocalNotificationsPlugin.show(
       0,

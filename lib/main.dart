@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:presensi/app/controllers/notifikasi_presensi.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'app/controllers/page_index_controller.dart';
 import 'app/routes/app_pages.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -18,6 +19,9 @@ void main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+
+  // Meminta izin notifikasi
+  await requestNotificationPermission();
 
   // Register GetStorage with GetX
   Get.put(GetStorage());
@@ -58,4 +62,10 @@ void main() async {
       },
     ),
   );
+}
+
+Future<void> requestNotificationPermission() async {
+  if (await Permission.notification.isDenied) {
+    await Permission.notification.request();
+  }
 }
